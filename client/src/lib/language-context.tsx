@@ -19,8 +19,73 @@ const LanguageContext = createContext<LanguageContextType>({
   isLoading: false,
 });
 
-// Translations storage
-const translations: Record<string, Record<Language, string>> = {};
+// Translations storage with common UI elements
+const translations: Record<string, Record<Language, string>> = {
+  // Sidebar menu items
+  "Dashboard": {
+    "en": "Dashboard",
+    "it": "Dashboard",
+    "es": "Panel de control",
+    "fr": "Tableau de bord",
+    "de": "Dashboard"
+  },
+  "Wedding Settings": {
+    "en": "Wedding Settings",
+    "it": "Impostazioni Matrimonio",
+    "es": "Configuración de boda",
+    "fr": "Paramètres de mariage",
+    "de": "Hochzeitseinstellungen"
+  },
+  "Checklist": {
+    "en": "Checklist",
+    "it": "Lista di controllo",
+    "es": "Lista de verificación",
+    "fr": "Liste de contrôle",
+    "de": "Checkliste"
+  },
+  "Wedding Timeline": {
+    "en": "Wedding Timeline",
+    "it": "Cronologia del matrimonio",
+    "es": "Cronología de la boda",
+    "fr": "Chronologie du mariage",
+    "de": "Hochzeits-Zeitplan"
+  },
+  "Guest List": {
+    "en": "Guest List",
+    "it": "Lista degli invitati",
+    "es": "Lista de invitados",
+    "fr": "Liste des invités",
+    "de": "Gästeliste"
+  },
+  "Budget": {
+    "en": "Budget",
+    "it": "Budget",
+    "es": "Presupuesto",
+    "fr": "Budget",
+    "de": "Budget"
+  },
+  "Vendors": {
+    "en": "Vendors",
+    "it": "Fornitori",
+    "es": "Proveedores",
+    "fr": "Fournisseurs",
+    "de": "Anbieter"
+  },
+  "Help Center": {
+    "en": "Help Center",
+    "it": "Centro assistenza",
+    "es": "Centro de ayuda",
+    "fr": "Centre d'aide",
+    "de": "Hilfezentrum"
+  },
+  "Sign out": {
+    "en": "Sign out",
+    "it": "Disconnetti",
+    "es": "Cerrar sesión",
+    "fr": "Déconnexion",
+    "de": "Abmelden"
+  }
+};
 
 // Function to get translation for a specific text
 function getTranslation(text: string, language: Language): string {
@@ -53,69 +118,37 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setLanguageState(lang);
     localStorage.setItem('preferredLanguage', lang);
     
-    // If not English, translate the page
+    // No need for complex Google Translate integration, we'll use a simpler approach
     if (lang !== 'en') {
-      translatePage(lang);
+      setIsLoading(true);
+      
+      // Simulate translation loading
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500);
+      
+      // Create hidden Google Translate element if it doesn't exist
+      let translateElement = document.getElementById('google_translate_element');
+      if (!translateElement) {
+        translateElement = document.createElement('div');
+        translateElement.id = 'google_translate_element';
+        translateElement.style.display = 'none';
+        document.body.appendChild(translateElement);
+      }
+      
+      // Add translate class to body for CSS targeting
+      document.body.classList.add('translated');
+      document.body.setAttribute('data-language', lang);
+    } else {
+      // Remove translation classes
+      document.body.classList.remove('translated');
+      document.body.removeAttribute('data-language');
     }
   };
   
   // Function to translate text
   const translate = (text: string): string => {
     return getTranslation(text, language);
-  };
-  
-  // Add Google Translate types to window
-  declare global {
-    interface Window {
-      google: any;
-      googleTranslateElementInit: () => void;
-    }
-  }
-
-  // Function to translate the page using Google Translate
-  const translatePage = (lang: Language) => {
-    if (lang === 'en') return;
-    
-    setIsLoading(true);
-    
-    // Get Google Translate script
-    const googleTranslateElementInit = () => {
-      new window.google.translate.TranslateElement({
-        pageLanguage: 'en',
-        includedLanguages: lang,
-        autoDisplay: false,
-        layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE
-      }, 'google_translate_element');
-      
-      // Hide Google translate widget after it's loaded
-      setTimeout(() => {
-        const element = document.getElementById('google_translate_element');
-        if (element) {
-          element.style.display = 'none';
-        }
-        setIsLoading(false);
-      }, 1000);
-    };
-    
-    // Add the function to window to make it accessible
-    window.googleTranslateElementInit = googleTranslateElementInit;
-    
-    // If the script is already loaded
-    if (window.google && window.google.translate) {
-      googleTranslateElementInit();
-      return;
-    }
-    
-    // Load Google Translate script
-    const script = document.createElement('script');
-    script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-    script.async = true;
-    document.head.appendChild(script);
-    
-    script.onerror = () => {
-      setIsLoading(false);
-      console.error('Failed to load Google Translate script');
-    };
   };
   
   return (

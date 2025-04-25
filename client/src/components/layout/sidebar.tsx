@@ -15,7 +15,8 @@ import {
   CheckSquare,
   Globe
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLanguage, type Language } from "@/lib/language-context";
 import { cn } from "@/lib/utils";
 
 interface SidebarLinkProps {
@@ -26,26 +27,31 @@ interface SidebarLinkProps {
   onClick?: () => void;
 }
 
-const SidebarLink = ({ href, icon, label, active, onClick }: SidebarLinkProps) => (
-  <Link href={href}>
-    <a 
-      className={cn(
-        "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
-        active 
-          ? "bg-primary/10 text-primary" 
-          : "text-foreground/70 hover:bg-primary/5 hover:text-primary"
-      )}
-      onClick={onClick}
-    >
-      {icon}
-      <span className="font-body">{label}</span>
-    </a>
-  </Link>
-);
+const SidebarLink = ({ href, icon, label, active, onClick }: SidebarLinkProps) => {
+  const { translate } = useLanguage();
+  
+  return (
+    <Link href={href}>
+      <a 
+        className={cn(
+          "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
+          active 
+            ? "bg-primary/10 text-primary" 
+            : "text-foreground/70 hover:bg-primary/5 hover:text-primary"
+        )}
+        onClick={onClick}
+      >
+        {icon}
+        <span className="font-body">{translate(label)}</span>
+      </a>
+    </Link>
+  );
+};
 
 export function Sidebar() {
   const [location] = useLocation();
   const { user, logoutMutation } = useAuth();
+  const { language, setLanguage, isLoading } = useLanguage();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   
@@ -137,8 +143,10 @@ export function Sidebar() {
         <div className="border-t border-border my-2 mx-4"></div>
         <div className="px-4 py-1">
           <select 
-            className="w-full px-3 py-2 text-sm rounded-md border border-border text-foreground/70"
-            defaultValue="en"
+            className={`w-full px-3 py-2 text-sm rounded-md border border-border text-foreground/70 ${isLoading ? 'opacity-50 cursor-wait' : ''}`}
+            value={language}
+            onChange={(e) => setLanguage(e.target.value as Language)}
+            disabled={isLoading}
           >
             <option value="en">🇬🇧 English</option>
             <option value="it">🇮🇹 Italiano</option>
@@ -146,6 +154,11 @@ export function Sidebar() {
             <option value="fr">🇫🇷 Français</option>
             <option value="de">🇩🇪 Deutsch</option>
           </select>
+          {isLoading && (
+            <div className="flex justify-center mt-1">
+              <span className="text-xs text-primary">Translating...</span>
+            </div>
+          )}
         </div>
       </div>
       
