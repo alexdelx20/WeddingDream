@@ -137,7 +137,12 @@ export default function ChecklistPage() {
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addTaskMutation.mutate(newTask);
+    // Convert Date object to ISO string format for the API
+    const taskData = {
+      ...newTask,
+      dueDate: newTask.dueDate ? new Date(newTask.dueDate).toISOString() : null,
+    };
+    addTaskMutation.mutate(taskData as any);
   };
   
   const handleToggleComplete = (task: Task) => {

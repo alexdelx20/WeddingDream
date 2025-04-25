@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PlusCircle, DollarSign, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -21,6 +21,22 @@ export default function BudgetPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isAddingCategory, setIsAddingCategory] = useState(false);
+  
+  // Default budget categories for wedding planning
+  const defaultCategories = [
+    { name: "Venue", estimatedCost: 0, actualCost: 0, notes: "Wedding venue and reception location" },
+    { name: "Catering", estimatedCost: 0, actualCost: 0, notes: "Food and beverages for guests" },
+    { name: "Photography", estimatedCost: 0, actualCost: 0, notes: "Photographer and photo album" },
+    { name: "Attire", estimatedCost: 0, actualCost: 0, notes: "Wedding dress, groom's suit, accessories" },
+    { name: "Flowers", estimatedCost: 0, actualCost: 0, notes: "Bouquets, boutonnieres, decorations" },
+    { name: "Music", estimatedCost: 0, actualCost: 0, notes: "DJ or band for ceremony and reception" },
+    { name: "Invitations", estimatedCost: 0, actualCost: 0, notes: "Invitations, save-the-dates, thank you cards" },
+    { name: "Cake", estimatedCost: 0, actualCost: 0, notes: "Wedding cake and desserts" },
+    { name: "Transportation", estimatedCost: 0, actualCost: 0, notes: "Limo, car rentals" },
+    { name: "Rings", estimatedCost: 0, actualCost: 0, notes: "Wedding bands" },
+    { name: "Decorations", estimatedCost: 0, actualCost: 0, notes: "Ceremony and reception decor" },
+    { name: "Gifts", estimatedCost: 0, actualCost: 0, notes: "Gifts for wedding party and family" }
+  ];
   
   const form = useForm<BudgetFormValues>({
     resolver: zodResolver(budgetCategorySchema),
@@ -132,6 +148,42 @@ export default function BudgetPage() {
         data: { actualCost },
       });
     }
+  };
+  
+  // Function to add a single default category
+  const addSingleDefaultCategory = async (category: typeof defaultCategories[0]) => {
+    try {
+      await createCategory.mutateAsync(category);
+    } catch (error) {
+      console.error("Failed to add default category:", error);
+    }
+  };
+  
+  // Handle adding all default categories
+  const handleAddDefaultCategories = () => {
+    // Show loading toast
+    toast({
+      title: "Adding Default Categories",
+      description: "Adding standard wedding budget categories...",
+    });
+    
+    // Add all default categories one by one
+    Promise.all(defaultCategories.map(category => addSingleDefaultCategory(category)))
+      .then(() => {
+        // All categories added successfully
+        toast({
+          title: "Default Categories Added",
+          description: "We've added standard wedding budget categories to help you get started.",
+        });
+      })
+      .catch(error => {
+        console.error("Error adding default categories:", error);
+        toast({
+          title: "Error",
+          description: "Something went wrong adding default categories. Please try again.",
+          variant: "destructive",
+        });
+      });
   };
   
   // Calculate totals
@@ -320,7 +372,31 @@ export default function BudgetPage() {
         ) : categories.length === 0 ? (
           <Card>
             <CardContent className="p-8 text-center">
-              <p className="text-muted-foreground">No budget categories yet. Add your first category.</p>
+              <p className="text-muted-foreground mb-4">No budget categories yet.</p>
+              <div className="flex flex-col gap-4 items-center">
+                <Button 
+                  onClick={() => setIsAddingCategory(true)}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Add Custom Category
+                </Button>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-white px-2 text-muted-foreground">Or</span>
+                  </div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={handleAddDefaultCategories}
+                  className="border-primary text-primary hover:bg-primary/10"
+                >
+                  Add Default Wedding Categories
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ) : (
