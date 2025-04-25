@@ -3,6 +3,9 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { setupAuth } from "./auth";
 import { storage } from "./storage";
+import path from "path";
+import fs from "fs";
+import multer from "multer";
 import {
   insertWeddingSettingsSchema,
   insertTaskSchema,

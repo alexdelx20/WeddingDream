@@ -14,7 +14,8 @@ import { Separator } from "@/components/ui/separator";
 import { DatePicker } from "@/components/ui/date-picker";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save } from "lucide-react";
+import { FileUpload } from "@/components/ui/file-upload";
+import { Loader2, Save, Upload } from "lucide-react";
 
 const settingsSchema = z.object({
   partner1Name: z.string().min(1, "Partner 1 name is required"),
@@ -95,9 +96,64 @@ export default function WeddingSettingsPage() {
     }
   }, [settings, form]);
   
+  // Effect to handle profile image loading from settings
+  useEffect(() => {
+    if (settings?.profileImageUrl) {
+      setProfileImageUrl(settings.profileImageUrl);
+    }
+  }, [settings]);
+
+  // Function to upload image to server
+  const uploadImage = async (file: File): Promise<string | null> => {
+    try {
+      // Create form data for file upload
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      // Upload the image
+      const response = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to upload image');
+      }
+      
+      const data = await response.json();
+      return data.imageUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: translate("Upload Error"),
+        description: translate("Failed to upload image. Please try again."),
+        variant: "destructive"
+      });
+      return null;
+    }
+  };
+  
   // Handle form submission
-  const onSubmit = (data: SettingsFormValues) => {
-    updateSettingsMutation.mutate(data);
+  const onSubmit = async (data: SettingsFormValues) => {
+    // If there's a new profile image, upload it first
+    let imageUrl = profileImageUrl;
+    
+    if (profileImage) {
+      const uploadedUrl = await uploadImage(profileImage);
+      if (uploadedUrl) {
+        imageUrl = uploadedUrl;
+        setProfileImageUrl(uploadedUrl);
+      }
+    }
+    
+    // Merge the image URL with the form data
+    const settingsData = {
+      ...data,
+      profileImageUrl: imageUrl
+    };
+    
+    // Update settings
+    updateSettingsMutation.mutate(settingsData);
   };
   
   // Get translation function from language context
@@ -133,15 +189,27 @@ export default function WeddingSettingsPage() {
             <CardContent>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <div className="mb-8">
+                    <FormLabel className="mb-2 block">{translate("Profile Image")}</FormLabel>
+                    <FileUpload
+                      onFileChange={setProfileImage}
+                      disabled={!isEditMode}
+                      previewUrl={profileImageUrl || undefined}
+                    />
+                    <FormDescription className="mt-1">
+                      {translate("Upload a photo of you as a couple")}
+                    </FormDescription>
+                  </div>
+                
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
                       control={form.control}
                       name="partner1Name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Partner 1 Name</FormLabel>
+                          <FormLabel>{translate("Partner 1 Name")}</FormLabel>
                           <FormControl>
-                            <Input disabled={!isEditMode} placeholder="Enter name" {...field} />
+                            <Input disabled={!isEditMode} placeholder={translate("Enter name")} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -153,9 +221,9 @@ export default function WeddingSettingsPage() {
                       name="partner2Name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Partner 2 Name</FormLabel>
+                          <FormLabel>{translate("Partner 2 Name")}</FormLabel>
                           <FormControl>
-                            <Input disabled={!isEditMode} placeholder="Enter name" {...field} />
+                            <Input disabled={!isEditMode} placeholder={translate("Enter name")} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -168,7 +236,7 @@ export default function WeddingSettingsPage() {
                     name="weddingDate"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
-                        <FormLabel>Wedding Date</FormLabel>
+                        <FormLabel>{translate("Wedding Date")}</FormLabel>
                         <FormControl>
                           <DatePicker
                             disabled={!isEditMode}
@@ -189,9 +257,9 @@ export default function WeddingSettingsPage() {
                       name="venueName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Venue Name</FormLabel>
+                          <FormLabel>{translate("Venue Name")}</FormLabel>
                           <FormControl>
-                            <Input disabled={!isEditMode} placeholder="Enter venue name" {...field} />
+                            <Input disabled={!isEditMode} placeholder={translate("Enter venue name")} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -203,9 +271,9 @@ export default function WeddingSettingsPage() {
                       name="venueAddress"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Venue Address</FormLabel>
+                          <FormLabel>{translate("Venue Address")}</FormLabel>
                           <FormControl>
-                            <Input disabled={!isEditMode} placeholder="Enter venue address" {...field} />
+                            <Input disabled={!isEditMode} placeholder={translate("Enter venue address")} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -218,12 +286,12 @@ export default function WeddingSettingsPage() {
                     name="theme"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Wedding Theme</FormLabel>
+                        <FormLabel>{translate("Wedding Theme")}</FormLabel>
                         <FormControl>
-                          <Input disabled={!isEditMode} placeholder="E.g. Rustic, Bohemian, Classic" {...field} />
+                          <Input disabled={!isEditMode} placeholder={translate("E.g. Rustic, Bohemian, Classic")} {...field} />
                         </FormControl>
                         <FormDescription>
-                          Describe the theme or style of your wedding
+                          {translate("Describe the theme or style of your wedding")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -235,11 +303,11 @@ export default function WeddingSettingsPage() {
                     name="notes"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Additional Notes</FormLabel>
+                        <FormLabel>{translate("Additional Notes")}</FormLabel>
                         <FormControl>
                           <Textarea 
                             disabled={!isEditMode}
-                            placeholder="Enter any additional details about your wedding" 
+                            placeholder={translate("Enter any additional details about your wedding")} 
                             className="min-h-32"
                             {...field} 
                           />
@@ -258,12 +326,12 @@ export default function WeddingSettingsPage() {
                       {updateSettingsMutation.isPending ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Saving...
+                          {translate("Saving...")}
                         </>
                       ) : (
                         <>
                           <Save className="mr-2 h-4 w-4" />
-                          Save Settings
+                          {translate("Save Settings")}
                         </>
                       )}
                     </Button>
