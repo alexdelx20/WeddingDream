@@ -11,7 +11,9 @@ import {
   Calendar, 
   Users, 
   DollarSign, 
-  ShoppingBag
+  ShoppingBag,
+  CheckSquare,
+  Globe
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -91,6 +93,13 @@ export function Sidebar() {
           onClick={() => setIsMobileOpen(false)}
         />
         <SidebarLink 
+          href="/checklist" 
+          icon={<CheckSquare size={20} />} 
+          label="Checklist" 
+          active={location === "/checklist"} 
+          onClick={() => setIsMobileOpen(false)}
+        />
+        <SidebarLink 
           href="/tasks" 
           icon={<Calendar size={20} />} 
           label="Wedding Timeline" 
@@ -125,6 +134,19 @@ export function Sidebar() {
           active={location === "/help-center"} 
           onClick={() => setIsMobileOpen(false)}
         />
+        <div className="border-t border-border my-2 mx-4"></div>
+        <div className="px-4 py-1">
+          <select 
+            className="w-full px-3 py-2 text-sm rounded-md border border-border text-foreground/70"
+            defaultValue="en"
+          >
+            <option value="en">🇬🇧 English</option>
+            <option value="it">🇮🇹 Italiano</option>
+            <option value="es">🇪🇸 Español</option>
+            <option value="fr">🇫🇷 Français</option>
+            <option value="de">🇩🇪 Deutsch</option>
+          </select>
+        </div>
       </div>
       
       <div className="mt-auto px-4 py-6">

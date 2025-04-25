@@ -96,9 +96,8 @@ export default function AuthPage() {
           {/* Left Column: Form */}
           <div className="w-full md:w-1/2 bg-white p-8">
             <div className="flex flex-col items-center mb-8">
-              <img src={logoPath} alt="My Wedding Dream Logo" className="h-16 mb-4" />
-              <h1 className="text-2xl font-heading text-primary-foreground">My Wedding Dream</h1>
-              <p className="text-muted-foreground text-sm mt-2 text-center">Your perfect wedding planning companion</p>
+              <img src={logoPath} alt="My Wedding Dream Logo" className="h-20 mb-4" />
+              <p className="text-muted-foreground text-sm text-center">Your perfect wedding planning companion</p>
             </div>
 
             <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab}>

@@ -13,6 +13,7 @@ import TasksPage from "@/pages/tasks-page";
 import GuestsPage from "@/pages/guests-page";
 import BudgetPage from "@/pages/budget-page";
 import VendorsPage from "@/pages/vendors-page";
+import ChecklistPage from "@/pages/checklist-page";
 import { ProtectedRoute } from "@/lib/protected-route";
 
 function Router() {
