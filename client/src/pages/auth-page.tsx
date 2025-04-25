@@ -97,7 +97,6 @@ export default function AuthPage() {
           <div className="w-full md:w-1/2 bg-white p-8">
             <div className="flex flex-col items-center mb-8">
               <img src={logoPath} alt="My Wedding Dream Logo" className="h-20 mb-4" />
-              <p className="text-muted-foreground text-sm text-center">Your perfect wedding planning companion</p>
             </div>
 
             <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab}>

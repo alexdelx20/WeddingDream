@@ -60,7 +60,7 @@ export default function ChecklistPage() {
       const task = {
         ...taskData,
         userId: 0, // This will be set by the server based on the authenticated user
-        dueDate: taskData.dueDate ? taskData.dueDate.toISOString() : null,
+        dueDate: taskData.dueDate ? new Date(taskData.dueDate).toISOString() : null,
       };
       
       const response = await fetch('/api/tasks', {
@@ -242,7 +242,7 @@ export default function ChecklistPage() {
                   )}
                 >
                   <Checkbox 
-                    checked={task.completed}
+                    checked={task.completed === true}
                     onCheckedChange={() => handleToggleComplete(task)}
                     className={cn(
                       "mt-1",
