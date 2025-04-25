@@ -1,8 +1,8 @@
-import type { Express, Request, Response } from "express";
+import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { setupAuth } from "./auth";
-import { storage } from "./storage";
+import { storage as dbStorage } from "./storage";
 import path from "path";
 import fs from "fs";
 import multer from "multer";
@@ -19,6 +19,42 @@ import {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication routes
   setupAuth(app);
+
+  // Setup image storage using multer
+  const uploadDir = path.join(process.cwd(), 'public/uploads');
+  // Ensure upload directory exists
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+
+  // Configure multer for storage
+  const fileStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      const ext = path.extname(file.originalname);
+      cb(null, 'profile-' + uniqueSuffix + ext);
+    }
+  });
+
+  const upload = multer({
+    storage: fileStorage,
+    limits: {
+      fileSize: 5 * 1024 * 1024, // 5MB
+    },
+    fileFilter: (req, file, cb) => {
+      // Accept images only
+      if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+        return cb(new Error('Only image files are allowed!') as any, false);
+      }
+      cb(null, true);
+    }
+  });
+
+  // Serve uploaded files as static files
+  app.use('/uploads', express.static(uploadDir));
 
   // Create HTTP server
   const httpServer = createServer(app);
@@ -60,12 +96,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     res.status(401).json({ message: "Unauthorized" });
   };
+  
+  // File upload endpoint
+  app.post("/api/upload-image", isAuthenticated, upload.single('image'), (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+      
+      // Return the URL to the uploaded file
+      const imageUrl = `/uploads/${req.file.filename}`;
+      res.json({ imageUrl });
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      res.status(500).json({ message: "Error uploading file" });
+    }
+  });
 
   // Wedding Settings Routes
   app.get("/api/wedding-settings", isAuthenticated, async (req, res) => {
     try {
       const userId = req.user!.id;
-      const settings = await storage.getWeddingSettings(userId);
+      const settings = await dbStorage.getWeddingSettings(userId);
       res.json(settings || {});
     } catch (error) {
       res.status(500).json({ message: "Error fetching wedding settings" });
@@ -78,14 +130,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const parsed = insertWeddingSettingsSchema.parse({ ...req.body, userId });
       
       // Check if user already has settings
-      const existingSettings = await storage.getWeddingSettings(userId);
+      const existingSettings = await dbStorage.getWeddingSettings(userId);
       
       if (existingSettings) {
-        const updated = await storage.updateWeddingSettings(existingSettings.id, parsed);
+        const updated = await dbStorage.updateWeddingSettings(existingSettings.id, parsed);
         return res.json(updated);
       }
       
-      const settings = await storage.createWeddingSettings(parsed);
+      const settings = await dbStorage.createWeddingSettings(parsed);
       res.status(201).json(settings);
     } catch (error) {
       res.status(400).json({ message: "Invalid wedding settings data" });
@@ -96,7 +148,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/tasks", isAuthenticated, async (req, res) => {
     try {
       const userId = req.user!.id;
-      const tasks = await storage.getTasks(userId);
+      const tasks = await dbStorage.getTasks(userId);
       res.json(tasks);
     } catch (error) {
       res.status(500).json({ message: "Error fetching tasks" });
@@ -107,7 +159,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user!.id;
       const parsed = insertTaskSchema.parse({ ...req.body, userId });
-      const task = await storage.createTask(parsed);
+      const task = await dbStorage.createTask(parsed);
       
       // Broadcast task creation
       broadcast({ type: "TASK_CREATED", payload: task });
@@ -124,12 +176,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.id;
       
       // Check if task exists and belongs to user
-      const task = await storage.getTask(taskId);
+      const task = await dbStorage.getTask(taskId);
       if (!task || task.userId !== userId) {
         return res.status(404).json({ message: "Task not found" });
       }
       
-      const updated = await storage.updateTask(taskId, req.body);
+      const updated = await dbStorage.updateTask(taskId, req.body);
       
       // Broadcast task update
       broadcast({ type: "TASK_UPDATED", payload: updated });
@@ -146,12 +198,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.id;
       
       // Check if task exists and belongs to user
-      const task = await storage.getTask(taskId);
+      const task = await dbStorage.getTask(taskId);
       if (!task || task.userId !== userId) {
         return res.status(404).json({ message: "Task not found" });
       }
       
-      await storage.deleteTask(taskId);
+      await dbStorage.deleteTask(taskId);
       
       // Broadcast task deletion
       broadcast({ type: "TASK_DELETED", payload: { id: taskId } });
@@ -166,7 +218,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/budget", isAuthenticated, async (req, res) => {
     try {
       const userId = req.user!.id;
-      const categories = await storage.getBudgetCategories(userId);
+      const categories = await dbStorage.getBudgetCategories(userId);
       res.json(categories);
     } catch (error) {
       res.status(500).json({ message: "Error fetching budget categories" });
@@ -177,7 +229,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user!.id;
       const parsed = insertBudgetCategorySchema.parse({ ...req.body, userId });
-      const category = await storage.createBudgetCategory(parsed);
+      const category = await dbStorage.createBudgetCategory(parsed);
       
       // Broadcast budget category creation
       broadcast({ type: "BUDGET_CREATED", payload: category });
@@ -194,12 +246,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.id;
       
       // Check if category exists and belongs to user
-      const category = await storage.getBudgetCategory(categoryId);
+      const category = await dbStorage.getBudgetCategory(categoryId);
       if (!category || category.userId !== userId) {
         return res.status(404).json({ message: "Budget category not found" });
       }
       
-      const updated = await storage.updateBudgetCategory(categoryId, req.body);
+      const updated = await dbStorage.updateBudgetCategory(categoryId, req.body);
       
       // Broadcast budget category update
       broadcast({ type: "BUDGET_UPDATED", payload: updated });
@@ -216,12 +268,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.id;
       
       // Check if category exists and belongs to user
-      const category = await storage.getBudgetCategory(categoryId);
+      const category = await dbStorage.getBudgetCategory(categoryId);
       if (!category || category.userId !== userId) {
         return res.status(404).json({ message: "Budget category not found" });
       }
       
-      await storage.deleteBudgetCategory(categoryId);
+      await dbStorage.deleteBudgetCategory(categoryId);
       
       // Broadcast budget category deletion
       broadcast({ type: "BUDGET_DELETED", payload: { id: categoryId } });
@@ -236,7 +288,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/vendors", isAuthenticated, async (req, res) => {
     try {
       const userId = req.user!.id;
-      const vendors = await storage.getVendors(userId);
+      const vendors = await dbStorage.getVendors(userId);
       res.json(vendors);
     } catch (error) {
       res.status(500).json({ message: "Error fetching vendors" });
@@ -247,7 +299,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user!.id;
       const parsed = insertVendorSchema.parse({ ...req.body, userId });
-      const vendor = await storage.createVendor(parsed);
+      const vendor = await dbStorage.createVendor(parsed);
       
       // Broadcast vendor creation
       broadcast({ type: "VENDOR_CREATED", payload: vendor });
@@ -264,12 +316,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.id;
       
       // Check if vendor exists and belongs to user
-      const vendor = await storage.getVendor(vendorId);
+      const vendor = await dbStorage.getVendor(vendorId);
       if (!vendor || vendor.userId !== userId) {
         return res.status(404).json({ message: "Vendor not found" });
       }
       
-      const updated = await storage.updateVendor(vendorId, req.body);
+      const updated = await dbStorage.updateVendor(vendorId, req.body);
       
       // Broadcast vendor update
       broadcast({ type: "VENDOR_UPDATED", payload: updated });
@@ -286,12 +338,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.id;
       
       // Check if vendor exists and belongs to user
-      const vendor = await storage.getVendor(vendorId);
+      const vendor = await dbStorage.getVendor(vendorId);
       if (!vendor || vendor.userId !== userId) {
         return res.status(404).json({ message: "Vendor not found" });
       }
       
-      await storage.deleteVendor(vendorId);
+      await dbStorage.deleteVendor(vendorId);
       
       // Broadcast vendor deletion
       broadcast({ type: "VENDOR_DELETED", payload: { id: vendorId } });
@@ -306,7 +358,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/guests", isAuthenticated, async (req, res) => {
     try {
       const userId = req.user!.id;
-      const guests = await storage.getGuests(userId);
+      const guests = await dbStorage.getGuests(userId);
       res.json(guests);
     } catch (error) {
       res.status(500).json({ message: "Error fetching guests" });
@@ -317,7 +369,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user!.id;
       const parsed = insertGuestSchema.parse({ ...req.body, userId });
-      const guest = await storage.createGuest(parsed);
+      const guest = await dbStorage.createGuest(parsed);
       
       // Broadcast guest creation
       broadcast({ type: "GUEST_CREATED", payload: guest });
@@ -334,12 +386,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.id;
       
       // Check if guest exists and belongs to user
-      const guest = await storage.getGuest(guestId);
+      const guest = await dbStorage.getGuest(guestId);
       if (!guest || guest.userId !== userId) {
         return res.status(404).json({ message: "Guest not found" });
       }
       
-      const updated = await storage.updateGuest(guestId, req.body);
+      const updated = await dbStorage.updateGuest(guestId, req.body);
       
       // Broadcast guest update
       broadcast({ type: "GUEST_UPDATED", payload: updated });
@@ -356,12 +408,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.id;
       
       // Check if guest exists and belongs to user
-      const guest = await storage.getGuest(guestId);
+      const guest = await dbStorage.getGuest(guestId);
       if (!guest || guest.userId !== userId) {
         return res.status(404).json({ message: "Guest not found" });
       }
       
-      await storage.deleteGuest(guestId);
+      await dbStorage.deleteGuest(guestId);
       
       // Broadcast guest deletion
       broadcast({ type: "GUEST_DELETED", payload: { id: guestId } });
@@ -376,7 +428,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/timeline", isAuthenticated, async (req, res) => {
     try {
       const userId = req.user!.id;
-      const events = await storage.getTimelineEvents(userId);
+      const events = await dbStorage.getTimelineEvents(userId);
       res.json(events);
     } catch (error) {
       res.status(500).json({ message: "Error fetching timeline events" });
@@ -387,7 +439,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user!.id;
       const parsed = insertTimelineEventSchema.parse({ ...req.body, userId });
-      const event = await storage.createTimelineEvent(parsed);
+      const event = await dbStorage.createTimelineEvent(parsed);
       
       // Broadcast timeline event creation
       broadcast({ type: "TIMELINE_CREATED", payload: event });
@@ -404,12 +456,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.id;
       
       // Check if event exists and belongs to user
-      const event = await storage.getTimelineEvent(eventId);
+      const event = await dbStorage.getTimelineEvent(eventId);
       if (!event || event.userId !== userId) {
         return res.status(404).json({ message: "Timeline event not found" });
       }
       
-      const updated = await storage.updateTimelineEvent(eventId, req.body);
+      const updated = await dbStorage.updateTimelineEvent(eventId, req.body);
       
       // Broadcast timeline event update
       broadcast({ type: "TIMELINE_UPDATED", payload: updated });
@@ -426,12 +478,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.id;
       
       // Check if event exists and belongs to user
-      const event = await storage.getTimelineEvent(eventId);
+      const event = await dbStorage.getTimelineEvent(eventId);
       if (!event || event.userId !== userId) {
         return res.status(404).json({ message: "Timeline event not found" });
       }
       
-      await storage.deleteTimelineEvent(eventId);
+      await dbStorage.deleteTimelineEvent(eventId);
       
       // Broadcast timeline event deletion
       broadcast({ type: "TIMELINE_DELETED", payload: { id: eventId } });
@@ -447,7 +499,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user!.id;
       const parsed = insertHelpMessageSchema.parse({ ...req.body, userId });
-      const message = await storage.createHelpMessage(parsed);
+      const message = await dbStorage.createHelpMessage(parsed);
       
       // Import here to avoid circular dependencies
       const { sendEmail } = await import('./email');
