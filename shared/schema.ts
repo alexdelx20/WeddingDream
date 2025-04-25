@@ -27,6 +27,7 @@ export const weddingSettings = pgTable("wedding_settings", {
   venueAddress: text("venue_address"),
   theme: text("theme"),
   notes: text("notes"),
+  profileImageUrl: text("profile_image_url"),
 });
 
 export const insertWeddingSettingsSchema = createInsertSchema(weddingSettings).omit({

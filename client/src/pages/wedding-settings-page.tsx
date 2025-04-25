@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLanguage } from "@/lib/language-context";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -61,6 +62,10 @@ export default function WeddingSettingsPage() {
     },
   });
   
+  // State for profile image
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+  
   // Form setup
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsSchema),
@@ -95,17 +100,20 @@ export default function WeddingSettingsPage() {
     updateSettingsMutation.mutate(data);
   };
   
+  // Get translation function from language context
+  const { translate } = useLanguage();
+  
   return (
     <div className="w-full py-10 px-4">
       <div className="container mx-auto max-w-4xl">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-heading text-foreground">Wedding Settings</h1>
+          <h1 className="text-3xl font-heading text-foreground">{translate("Wedding Settings")}</h1>
           {!isEditMode && (
             <Button 
               onClick={() => setIsEditMode(true)}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              Edit Settings
+              {translate("Edit Settings")}
             </Button>
           )}
         </div>
@@ -165,7 +173,7 @@ export default function WeddingSettingsPage() {
                           <DatePicker
                             disabled={!isEditMode}
                             date={field.value}
-                            onSelect={field.onChange}
+                            onSelect={(date: Date | undefined) => field.onChange(date)}
                           />
                         </FormControl>
                         <FormMessage />

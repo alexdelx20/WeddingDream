@@ -174,7 +174,7 @@ export function Sidebar() {
                 onClick={handleLogout}
                 className="text-xs text-foreground/50 hover:text-primary transition-colors"
               >
-                Sign out
+                {translate("Sign out")}
               </button>
             </div>
           </div>

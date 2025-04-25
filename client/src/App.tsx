@@ -15,7 +15,7 @@ import BudgetPage from "@/pages/budget-page";
 import VendorsPage from "@/pages/vendors-page";
 import ChecklistPage from "@/pages/checklist-page";
 import { ProtectedRoute } from "@/lib/protected-route";
-import { LanguageProvider } from "@/lib/language-context";
+
 
 function Router() {
   return (
@@ -43,12 +43,10 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <LanguageProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-          </TooltipProvider>
-        </LanguageProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
