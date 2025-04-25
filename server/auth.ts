@@ -4,7 +4,7 @@ import { Express } from "express";
 import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
-import { storage } from "./storage";
+import { storage as dbStorage } from "./storage";
 import { User as SelectUser } from "@shared/schema";
 
 declare global {
@@ -33,7 +33,7 @@ export function setupAuth(app: Express) {
     secret: process.env.SESSION_SECRET || "my_wedding_dream_secret",
     resave: false,
     saveUninitialized: false,
-    store: storage.sessionStore,
+    store: dbStorage.sessionStore,
     cookie: {
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       httpOnly: true,
@@ -54,7 +54,7 @@ export function setupAuth(app: Express) {
       },
       async (email, password, done) => {
         try {
-          const user = await storage.getUserByEmail(email);
+          const user = await dbStorage.getUserByEmail(email);
           if (!user || !(await comparePasswords(password, user.password))) {
             return done(null, false);
           } else {
@@ -70,7 +70,7 @@ export function setupAuth(app: Express) {
   passport.serializeUser((user, done) => done(null, user.id));
   passport.deserializeUser(async (id: number, done) => {
     try {
-      const user = await storage.getUser(id);
+      const user = await dbStorage.getUser(id);
       done(null, user);
     } catch (error) {
       done(error);
@@ -80,18 +80,18 @@ export function setupAuth(app: Express) {
   app.post("/api/register", async (req, res, next) => {
     try {
       // Check if user already exists
-      const existingUserByEmail = await storage.getUserByEmail(req.body.email);
+      const existingUserByEmail = await dbStorage.getUserByEmail(req.body.email);
       if (existingUserByEmail) {
         return res.status(400).json({ message: "Email already in use" });
       }
 
-      const existingUserByUsername = await storage.getUserByUsername(req.body.username);
+      const existingUserByUsername = await dbStorage.getUserByUsername(req.body.username);
       if (existingUserByUsername) {
         return res.status(400).json({ message: "Username already exists" });
       }
 
       // Create new user
-      const user = await storage.createUser({
+      const user = await dbStorage.createUser({
         ...req.body,
         password: await hashPassword(req.body.password),
       });
@@ -110,7 +110,7 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
-    passport.authenticate("local", (err, user, info) => {
+    passport.authenticate("local", (err: any, user: SelectUser | false, info: any) => {
       if (err) return next(err);
       if (!user) {
         return res.status(401).json({ message: "Invalid email or password" });
