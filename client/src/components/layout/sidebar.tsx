@@ -51,7 +51,7 @@ const SidebarLink = ({ href, icon, label, active, onClick }: SidebarLinkProps) =
 export function Sidebar() {
   const [location] = useLocation();
   const { user, logoutMutation } = useAuth();
-  const { language, setLanguage, isLoading } = useLanguage();
+  const { language, setLanguage, isLoading, translate } = useLanguage();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   
