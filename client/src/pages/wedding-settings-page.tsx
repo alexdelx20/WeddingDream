@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { useForm } from "react-hook-form";
@@ -67,24 +67,30 @@ export default function WeddingSettingsPage() {
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
-      partner1Name: settings?.partner1Name || "",
-      partner2Name: settings?.partner2Name || "",
-      weddingDate: settings?.weddingDate ? new Date(settings.weddingDate) : undefined,
-      venueName: settings?.venueName || "",
-      venueAddress: settings?.venueAddress || "",
-      theme: settings?.theme || "",
-      notes: settings?.notes || "",
-    },
-    values: {
-      partner1Name: settings?.partner1Name || "",
-      partner2Name: settings?.partner2Name || "",
-      weddingDate: settings?.weddingDate ? new Date(settings.weddingDate) : new Date(),
-      venueName: settings?.venueName || "",
-      venueAddress: settings?.venueAddress || "",
-      theme: settings?.theme || "",
-      notes: settings?.notes || "",
+      partner1Name: "",
+      partner2Name: "",
+      weddingDate: new Date(),
+      venueName: "",
+      venueAddress: "",
+      theme: "",
+      notes: "",
     },
   });
+  
+  // Update form when settings are loaded
+  useEffect(() => {
+    if (settings) {
+      form.reset({
+        partner1Name: settings.partner1Name || "",
+        partner2Name: settings.partner2Name || "",
+        weddingDate: settings.weddingDate ? new Date(settings.weddingDate) : new Date(),
+        venueName: settings.venueName || "",
+        venueAddress: settings.venueAddress || "",
+        theme: settings.theme || "",
+        notes: settings.notes || "",
+      });
+    }
+  }, [settings, form]);
   
   // Handle form submission
   const onSubmit = (data: SettingsFormValues) => {
