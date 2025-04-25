@@ -7,6 +7,7 @@
 
 @layer base {
   :root {
+    /* #FCFCFC for background */
     --background: 0 0% 98.8%;
     --foreground: 20 14.3% 4.1%;
     --muted: 60 4.8% 95.9%;
@@ -17,6 +18,7 @@
     --card-foreground: 20 14.3% 4.1%;
     --border: 20 5.9% 90%;
     --input: 20 5.9% 90%;
+    /* #f2d6d5 for primary (buttons and elements) */
     --primary: 351 48% 89%;
     --primary-foreground: 355 70% 31%;
     --secondary: 60 4.8% 95.9%;
