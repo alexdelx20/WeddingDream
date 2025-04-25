@@ -71,9 +71,8 @@ export function Sidebar() {
 
   const renderSidebarContent = () => (
     <>
-      <div className="flex items-center gap-3 px-4 py-6">
-        <img src={logoPath} alt="My Wedding Dream Logo" className="h-10 w-auto" />
-        {!isCollapsed && <h1 className="text-xl font-heading text-primary">My Wedding Dream</h1>}
+      <div className="flex items-center justify-center px-4 py-6">
+        <img src={logoPath} alt="My Wedding Dream Logo" className="h-16 w-auto" />
       </div>
       
       <div className="mt-6 flex flex-col gap-2">
@@ -181,9 +180,8 @@ export function Sidebar() {
       
       {/* Mobile Header */}
       <div className="flex md:hidden items-center justify-between h-16 px-4 border-b border-border bg-white sticky top-0 z-30">
-        <div className="flex items-center gap-3">
-          <img src={logoPath} alt="My Wedding Dream Logo" className="h-8 w-auto" />
-          <h1 className="text-lg font-heading text-primary">My Wedding Dream</h1>
+        <div className="flex items-center justify-center">
+          <img src={logoPath} alt="My Wedding Dream Logo" className="h-10 w-auto" />
         </div>
         
         <button 
