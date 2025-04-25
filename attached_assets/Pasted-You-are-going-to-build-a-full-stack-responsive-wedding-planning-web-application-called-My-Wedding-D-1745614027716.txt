@@ -1,0 +1,83 @@
+You are going to build a full-stack, responsive wedding-planning web application called My Wedding Dream, based on the features of the BrideMe app and the design language of https://myweddingdream.co/. Use the attached image as the app logo, extract the main pink color, heading font and body font from that site, and apply them consistently throughout the UI.
+
+1. Branding & Design
+Logo: use the supplied image file as the application logo.
+
+Color Palette: sample the primary pink hue from https://myweddingdream.co/ and generate a complementary accent palette (e.g. lighter pinks, neutrals).
+
+Typography: identify and use the same or very similar heading font and paragraph font as on the live site.
+
+Visual Style: create a distinctive but familiar look—clean layouts, generous white space, soft shadows, rounded corners. Ensure mobile-first responsiveness.
+
+2. Core Features
+User Authentication
+
+Simple email/password signup & login (no email-confirmation step).
+
+On successful registration or login, redirect immediately to the user’s dashboard without delay.
+
+User Profile & Settings
+
+Per-user “Wedding Settings” form: wedding date, couple’s names, venue details, theme notes, etc.
+
+Persist all settings to the database so each user sees only their own data.
+
+Dashboard Modules
+
+Tasks & Events: create, edit, delete tasks or events; items should appear instantly (no page reload).
+
+Budget Tracker: enter estimated vs. actual costs; update charts in real time.
+
+Vendor Directory: add vendors with name, category, contact info, contract upload.
+
+Guest List: add guests, track RSVP status, meal preference; instant updates.
+
+Help Center Page
+
+A simple “Contact Us” form where users can send messages to info@myweddingdream.co.
+
+Validate inputs and show success/failure feedback immediately.
+
+Performance & Reliability
+
+Ensure all CRUD operations complete in under 200 ms wherever possible.
+
+Lazy-load images and batch-update UI to eliminate flicker.
+
+Test every feature repeatedly to guarantee zero bugs in form validation, data saving, and page navigation.
+
+3. Technical Stack & Architecture
+Monorepo Structure
+
+/client (React + TailwindCSS)
+
+/server (Node.js + Express)
+
+Database: MongoDB (one database per deployment). Use Mongoose for schema definitions: User, WeddingSettings, Task, Vendor, Guest, etc.
+
+Authentication: JWT tokens stored in secure HTTP-only cookies.
+
+Real-Time Updates: use WebSockets or a lightweight pub/sub (e.g. Socket.io) to push new tasks/events immediately to the UI.
+
+Email Notifications: integrate SendGrid (via @sendgrid/mail) for transactional emails; store the API key in an environment variable.
+
+Deployment & CI/CD: Dockerize both client and server; configure GitHub Actions to build and deploy to Vercel (client) and Heroku (server).
+
+4. Quality Assurance & Debugging
+Write unit tests (Jest) for backend services and React components.
+
+Create integration tests (Supertest) for all API endpoints.
+
+Perform end-to-end smoke tests: user signup → settings → create task → send help message → logout.
+
+After initial build, run a full debug pass to identify and fix any UI/UX glitches, performance bottlenecks, or data-consistency issues.
+
+Instructions for yourself (Replit AI):
+
+Scaffold the monorepo with create-react-app and express-generator (or similar).
+
+Install and configure all dependencies (Tailwind, Mongoose, JWT, Socket.io, SendGrid).
+
+Build features iteratively: start with authentication → settings → dashboard modules → help center → deployment scripts → tests.
+
+Commit each feature with clear commit messages and update README.md with setup, run, and test instructions.
