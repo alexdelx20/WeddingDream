@@ -154,9 +154,23 @@ export default function BudgetPage() {
   // Function to add a single default category
   const addSingleDefaultCategory = async (category: typeof defaultCategories[0]) => {
     try {
-      await createCategory.mutateAsync(category);
+      // Make a direct fetch request to avoid issues with the category's type
+      const response = await fetch('/api/budget', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(category),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to add default category');
+      }
+      
+      return await response.json();
     } catch (error) {
       console.error("Failed to add default category:", error);
+      throw error;
     }
   };
   

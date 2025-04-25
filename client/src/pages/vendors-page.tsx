@@ -43,6 +43,60 @@ export default function VendorsPage() {
   const [isAddingVendor, setIsAddingVendor] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>("all");
   
+  // Default vendors for weddings by category
+  const defaultVendors = [
+    { 
+      name: "Sample Venue Vendor", 
+      category: "Venue", 
+      contactName: "", 
+      email: "", 
+      phone: "", 
+      website: "", 
+      notes: "Wedding venue and reception location provider", 
+      userId: 0 
+    },
+    { 
+      name: "Sample Catering Vendor", 
+      category: "Catering", 
+      contactName: "", 
+      email: "", 
+      phone: "", 
+      website: "", 
+      notes: "Catering service for wedding and reception", 
+      userId: 0 
+    },
+    { 
+      name: "Sample Photography Vendor", 
+      category: "Photography", 
+      contactName: "", 
+      email: "", 
+      phone: "", 
+      website: "", 
+      notes: "Wedding photography service", 
+      userId: 0 
+    },
+    { 
+      name: "Sample Florist Vendor", 
+      category: "Florist", 
+      contactName: "", 
+      email: "", 
+      phone: "", 
+      website: "", 
+      notes: "Floral arrangements for ceremony and reception", 
+      userId: 0 
+    },
+    { 
+      name: "Sample Music/DJ Vendor", 
+      category: "Music/DJ", 
+      contactName: "", 
+      email: "", 
+      phone: "", 
+      website: "", 
+      notes: "Music and entertainment for ceremony and reception", 
+      userId: 0 
+    }
+  ];
+  
   const form = useForm<VendorFormValues>({
     resolver: zodResolver(vendorSchema),
     defaultValues: {
@@ -122,6 +176,56 @@ export default function VendorsPage() {
     if (confirm("Are you sure you want to delete this vendor?")) {
       deleteVendor.mutate(id);
     }
+  };
+  
+  // Function to add a single default vendor
+  const addSingleDefaultVendor = async (vendor: typeof defaultVendors[0]) => {
+    try {
+      // Make a direct fetch request to avoid issues with the vendor's type
+      const response = await fetch('/api/vendors', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(vendor),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to add default vendor');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error("Failed to add default vendor:", error);
+      throw error;
+    }
+  };
+  
+  // Handle adding all default vendors
+  const handleAddDefaultVendors = () => {
+    // Show loading toast
+    toast({
+      title: "Adding Default Vendors",
+      description: "Adding standard wedding vendor categories...",
+    });
+    
+    // Add all default vendors one by one
+    Promise.all(defaultVendors.map(vendor => addSingleDefaultVendor(vendor)))
+      .then(() => {
+        // All vendors added successfully
+        toast({
+          title: "Default Vendors Added",
+          description: "We've added standard wedding vendor categories to help you get started.",
+        });
+      })
+      .catch(error => {
+        console.error("Error adding default vendors:", error);
+        toast({
+          title: "Error",
+          description: "Something went wrong adding default vendors. Please try again.",
+          variant: "destructive",
+        });
+      });
   };
   
   // Filter vendors by category
