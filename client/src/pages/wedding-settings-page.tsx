@@ -125,8 +125,8 @@ export default function WeddingSettingsPage() {
     } catch (error) {
       console.error('Error uploading image:', error);
       toast({
-        title: translate("Upload Error"),
-        description: translate("Failed to upload image. Please try again."),
+        title: "Upload Error",
+        description: "Failed to upload image. Please try again.",
         variant: "destructive"
       });
       return null;
