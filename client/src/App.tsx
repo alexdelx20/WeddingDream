@@ -24,6 +24,7 @@ function Router() {
       <ProtectedRoute path="/wedding-settings" component={WeddingSettingsPage} />
       <ProtectedRoute path="/help-center" component={HelpCenterPage} />
       <ProtectedRoute path="/tasks" component={TasksPage} />
+      <ProtectedRoute path="/checklist" component={ChecklistPage} />
       <ProtectedRoute path="/guests" component={GuestsPage} />
       <ProtectedRoute path="/budget" component={BudgetPage} />
       <ProtectedRoute path="/vendors" component={VendorsPage} />

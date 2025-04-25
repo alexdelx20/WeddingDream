@@ -45,7 +45,8 @@ export default function ChecklistPage() {
     description: "",
     priority: "medium" as "low" | "medium" | "high",
     dueDate: null as Date | null,
-    completed: false
+    completed: false,
+    userId: 0 // Will be set on the server from authenticated user session
   });
   
   // Fetch tasks
@@ -55,7 +56,13 @@ export default function ChecklistPage() {
   
   // Add task mutation
   const addTaskMutation = useMutation({
-    mutationFn: async (task: Omit<Task, "id" | "createdAt">) => {
+    mutationFn: async (taskData: Omit<Task, "id" | "createdAt" | "userId">) => {
+      const task = {
+        ...taskData,
+        userId: 0, // This will be set by the server based on the authenticated user
+        dueDate: taskData.dueDate ? taskData.dueDate.toISOString() : null,
+      };
+      
       const response = await fetch('/api/tasks', {
         method: 'POST',
         headers: {
@@ -123,7 +130,8 @@ export default function ChecklistPage() {
       description: "",
       priority: "medium",
       dueDate: null,
-      completed: false
+      completed: false,
+      userId: 0
     });
   };
   
