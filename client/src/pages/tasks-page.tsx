@@ -184,8 +184,8 @@ export default function TasksPage() {
                       <FormItem className="flex flex-col">
                         <FormLabel>Due Date</FormLabel>
                         <DatePicker
-                          selected={field.value ? new Date(field.value) : undefined}
-                          onSelect={(date) => field.onChange(date ? date.toISOString() : null)}
+                          date={field.value ? new Date(field.value) : undefined}
+                          setDate={(date) => field.onChange(date ? date.toISOString() : null)}
                         />
                         <FormMessage />
                       </FormItem>
@@ -282,7 +282,7 @@ export default function TasksPage() {
                     
                     <div className="flex items-center mt-3">
                       <div className={`text-xs px-2 py-1 rounded ${getPriorityColor(task.priority)} bg-opacity-10`}>
-                        {task.priority?.charAt(0).toUpperCase() + task.priority?.slice(1) || "Medium"} Priority
+                        {(task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : "Medium")} Priority
                       </div>
                     </div>
                   </div>

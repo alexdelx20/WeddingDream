@@ -22,10 +22,10 @@ function Router() {
       <ProtectedRoute path="/" component={DashboardPage} />
       <ProtectedRoute path="/wedding-settings" component={WeddingSettingsPage} />
       <ProtectedRoute path="/help-center" component={HelpCenterPage} />
-      <ProtectedRoute path="/tasks" component={() => import("./pages/tasks-page").then(module => ({ default: module.default }))} />
-      <ProtectedRoute path="/guests" component={() => import("./pages/guests-page").then(module => ({ default: module.default }))} />
-      <ProtectedRoute path="/budget" component={() => import("./pages/budget-page").then(module => ({ default: module.default }))} />
-      <ProtectedRoute path="/vendors" component={() => import("./pages/vendors-page").then(module => ({ default: module.default }))} />
+      <ProtectedRoute path="/tasks" component={TasksPage} />
+      <ProtectedRoute path="/guests" component={GuestsPage} />
+      <ProtectedRoute path="/budget" component={BudgetPage} />
+      <ProtectedRoute path="/vendors" component={VendorsPage} />
       
       {/* Public routes */}
       <Route path="/auth" component={AuthPage} />

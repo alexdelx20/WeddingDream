@@ -241,8 +241,11 @@ export default function BudgetPage() {
                               type="number" 
                               className="pl-9" 
                               placeholder="0.00" 
-                              {...field}
-                              onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                              value={field.value?.toString() || ""}
+                              onChange={(e) => field.onChange(e.target.valueAsNumber || 0)}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
                             />
                           </div>
                         </FormControl>
@@ -264,8 +267,11 @@ export default function BudgetPage() {
                               type="number" 
                               className="pl-9" 
                               placeholder="0.00" 
-                              {...field}
-                              onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                              value={field.value?.toString() || ""}
+                              onChange={(e) => field.onChange(e.target.valueAsNumber || 0)}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
                             />
                           </div>
                         </FormControl>
@@ -357,7 +363,7 @@ export default function BudgetPage() {
                               <Input
                                 type="number"
                                 className="pl-9 text-right"
-                                value={actual}
+                                value={actual.toString()}
                                 onChange={(e) => handleUpdateActualCost(category.id, e.target.value)}
                               />
                             </div>
