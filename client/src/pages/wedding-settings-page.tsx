@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -98,182 +96,176 @@ export default function WeddingSettingsPage() {
   };
   
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Header />
-      
-      <main className="flex-grow py-10 px-4">
-        <div className="container mx-auto max-w-4xl">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-heading text-foreground">Wedding Settings</h1>
-            {!isEditMode && (
-              <Button 
-                onClick={() => setIsEditMode(true)}
-                className="bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                Edit Settings
-              </Button>
-            )}
-          </div>
-          
-          {isLoading ? (
-            <div className="flex justify-center py-16">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle>Wedding Details</CardTitle>
-                <CardDescription>
-                  Update your wedding information to personalize your planning experience.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="partner1Name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Partner 1 Name</FormLabel>
-                            <FormControl>
-                              <Input disabled={!isEditMode} placeholder="Enter name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="partner2Name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Partner 2 Name</FormLabel>
-                            <FormControl>
-                              <Input disabled={!isEditMode} placeholder="Enter name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    
-                    <FormField
-                      control={form.control}
-                      name="weddingDate"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <FormLabel>Wedding Date</FormLabel>
-                          <FormControl>
-                            <DatePicker
-                              disabled={!isEditMode}
-                              date={field.value}
-                              onSelect={field.onChange}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <Separator />
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="venueName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Venue Name</FormLabel>
-                            <FormControl>
-                              <Input disabled={!isEditMode} placeholder="Enter venue name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="venueAddress"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Venue Address</FormLabel>
-                            <FormControl>
-                              <Input disabled={!isEditMode} placeholder="Enter venue address" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    
-                    <FormField
-                      control={form.control}
-                      name="theme"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Wedding Theme</FormLabel>
-                          <FormControl>
-                            <Input disabled={!isEditMode} placeholder="E.g. Rustic, Bohemian, Classic" {...field} />
-                          </FormControl>
-                          <FormDescription>
-                            Describe the theme or style of your wedding
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="notes"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Additional Notes</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              disabled={!isEditMode}
-                              placeholder="Enter any additional details about your wedding" 
-                              className="min-h-32"
-                              {...field} 
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    {isEditMode && (
-                      <Button 
-                        type="submit" 
-                        className="w-full"
-                        disabled={updateSettingsMutation.isPending}
-                      >
-                        {updateSettingsMutation.isPending ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Saving...
-                          </>
-                        ) : (
-                          <>
-                            <Save className="mr-2 h-4 w-4" />
-                            Save Settings
-                          </>
-                        )}
-                      </Button>
-                    )}
-                  </form>
-                </Form>
-              </CardContent>
-            </Card>
+    <div className="w-full py-10 px-4">
+      <div className="container mx-auto max-w-4xl">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-heading text-foreground">Wedding Settings</h1>
+          {!isEditMode && (
+            <Button 
+              onClick={() => setIsEditMode(true)}
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              Edit Settings
+            </Button>
           )}
         </div>
-      </main>
-      
-      <Footer />
+        
+        {isLoading ? (
+          <div className="flex justify-center py-16">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle>Wedding Details</CardTitle>
+              <CardDescription>
+                Update your wedding information to personalize your planning experience.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="partner1Name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Partner 1 Name</FormLabel>
+                          <FormControl>
+                            <Input disabled={!isEditMode} placeholder="Enter name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="partner2Name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Partner 2 Name</FormLabel>
+                          <FormControl>
+                            <Input disabled={!isEditMode} placeholder="Enter name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <FormField
+                    control={form.control}
+                    name="weddingDate"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Wedding Date</FormLabel>
+                        <FormControl>
+                          <DatePicker
+                            disabled={!isEditMode}
+                            date={field.value}
+                            onSelect={field.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <Separator />
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="venueName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Venue Name</FormLabel>
+                          <FormControl>
+                            <Input disabled={!isEditMode} placeholder="Enter venue name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="venueAddress"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Venue Address</FormLabel>
+                          <FormControl>
+                            <Input disabled={!isEditMode} placeholder="Enter venue address" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <FormField
+                    control={form.control}
+                    name="theme"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Wedding Theme</FormLabel>
+                        <FormControl>
+                          <Input disabled={!isEditMode} placeholder="E.g. Rustic, Bohemian, Classic" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          Describe the theme or style of your wedding
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="notes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Additional Notes</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            disabled={!isEditMode}
+                            placeholder="Enter any additional details about your wedding" 
+                            className="min-h-32"
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  {isEditMode && (
+                    <Button 
+                      type="submit" 
+                      className="w-full"
+                      disabled={updateSettingsMutation.isPending}
+                    >
+                      {updateSettingsMutation.isPending ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="mr-2 h-4 w-4" />
+                          Save Settings
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }

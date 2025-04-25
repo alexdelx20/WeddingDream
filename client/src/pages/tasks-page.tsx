@@ -185,7 +185,7 @@ export default function TasksPage() {
                         <FormLabel>Due Date</FormLabel>
                         <DatePicker
                           date={field.value ? new Date(field.value) : undefined}
-                          setDate={(date) => field.onChange(date ? date.toISOString() : null)}
+                          onSelect={(date: Date | undefined) => field.onChange(date ? date.toISOString() : null)}
                         />
                         <FormMessage />
                       </FormItem>
