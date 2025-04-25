@@ -446,9 +446,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const parsed = insertHelpMessageSchema.parse({ ...req.body, userId });
       const message = await storage.createHelpMessage(parsed);
       
-      res.status(201).json({ success: true, message: "Message sent successfully" });
+      // Import here to avoid circular dependencies
+      const { sendEmail } = await import('./email');
+      
+      // Send email notification
+      const emailSent = await sendEmail({
+        to: 'info@myweddingdream.co', // Change this to the recipient email
+        from: 'notifications@myweddingdream.co', // This should be a verified sender in SendGrid
+        subject: `Help Center: ${parsed.subject}`,
+        html: `
+          <h2>New Message from Wedding Dream Help Center</h2>
+          <p><strong>From:</strong> ${parsed.name} (${parsed.email})</p>
+          <p><strong>Subject:</strong> ${parsed.subject}</p>
+          <p><strong>Message:</strong></p>
+          <p>${parsed.message.replace(/\n/g, '<br>')}</p>
+        `,
+        text: `
+          New Message from Wedding Dream Help Center
+          
+          From: ${parsed.name} (${parsed.email})
+          Subject: ${parsed.subject}
+          
+          Message:
+          ${parsed.message}
+        `
+      });
+      
+      res.status(201).json({ 
+        success: true, 
+        message: "Message sent successfully", 
+        emailSent
+      });
     } catch (error) {
-      res.status(400).json({ message: "Invalid help message data" });
+      console.error("Help Center Error:", error);
+      res.status(400).json({ message: "Error sending help message" });
     }
   });
 
