@@ -425,11 +425,37 @@ export default function VendorsPage() {
             ) : filteredVendors.length === 0 ? (
               <Card>
                 <CardContent className="p-8 text-center">
-                  <p className="text-muted-foreground">
+                  <p className="text-muted-foreground mb-4">
                     {activeCategory === "all" 
                       ? "No vendors added yet. Add your first vendor." 
                       : `No vendors in the "${activeCategory}" category.`}
                   </p>
+                  {activeCategory === "all" && (
+                    <div className="flex flex-col gap-4 items-center">
+                      <Button 
+                        onClick={() => setIsAddingVendor(true)}
+                        className="bg-primary hover:bg-primary/90"
+                      >
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add Custom Vendor
+                      </Button>
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <span className="w-full border-t" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-white px-2 text-muted-foreground">Or</span>
+                        </div>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        onClick={handleAddDefaultVendors}
+                        className="border-primary text-primary hover:bg-primary/10"
+                      >
+                        Add Default Wedding Vendors
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ) : (
