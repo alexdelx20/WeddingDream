@@ -40,7 +40,9 @@ export default function DashboardPage() {
   });
   
   // Calculate days remaining
-  const daysRemaining = calculateDaysRemaining(weddingSettings?.weddingDate);
+  const daysRemaining = weddingSettings?.weddingDate 
+    ? calculateDaysRemaining(weddingSettings.weddingDate) 
+    : 0;
   
   // Calculate task completion progress
   const completedTasks = tasks.filter(task => task.completed).length;
