@@ -177,7 +177,13 @@ export default function ChecklistPage() {
     if (!a.dueDate && !b.dueDate) return 0;
     if (!a.dueDate) return 1;
     if (!b.dueDate) return -1;
-    return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+    
+    // Parse the date strings properly
+    const dateA = a.dueDate ? new Date(a.dueDate) : null;
+    const dateB = b.dueDate ? new Date(b.dueDate) : null;
+    
+    if (!dateA || !dateB) return 0;
+    return dateA.getTime() - dateB.getTime();
   });
 
   return (

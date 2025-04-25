@@ -24,18 +24,18 @@ export default function BudgetPage() {
   
   // Default budget categories for wedding planning
   const defaultCategories = [
-    { name: "Venue", estimatedCost: 0, actualCost: 0, notes: "Wedding venue and reception location" },
-    { name: "Catering", estimatedCost: 0, actualCost: 0, notes: "Food and beverages for guests" },
-    { name: "Photography", estimatedCost: 0, actualCost: 0, notes: "Photographer and photo album" },
-    { name: "Attire", estimatedCost: 0, actualCost: 0, notes: "Wedding dress, groom's suit, accessories" },
-    { name: "Flowers", estimatedCost: 0, actualCost: 0, notes: "Bouquets, boutonnieres, decorations" },
-    { name: "Music", estimatedCost: 0, actualCost: 0, notes: "DJ or band for ceremony and reception" },
-    { name: "Invitations", estimatedCost: 0, actualCost: 0, notes: "Invitations, save-the-dates, thank you cards" },
-    { name: "Cake", estimatedCost: 0, actualCost: 0, notes: "Wedding cake and desserts" },
-    { name: "Transportation", estimatedCost: 0, actualCost: 0, notes: "Limo, car rentals" },
-    { name: "Rings", estimatedCost: 0, actualCost: 0, notes: "Wedding bands" },
-    { name: "Decorations", estimatedCost: 0, actualCost: 0, notes: "Ceremony and reception decor" },
-    { name: "Gifts", estimatedCost: 0, actualCost: 0, notes: "Gifts for wedding party and family" }
+    { name: "Venue", estimatedCost: 0, actualCost: 0, notes: "Wedding venue and reception location", userId: 0 },
+    { name: "Catering", estimatedCost: 0, actualCost: 0, notes: "Food and beverages for guests", userId: 0 },
+    { name: "Photography", estimatedCost: 0, actualCost: 0, notes: "Photographer and photo album", userId: 0 },
+    { name: "Attire", estimatedCost: 0, actualCost: 0, notes: "Wedding dress, groom's suit, accessories", userId: 0 },
+    { name: "Flowers", estimatedCost: 0, actualCost: 0, notes: "Bouquets, boutonnieres, decorations", userId: 0 },
+    { name: "Music", estimatedCost: 0, actualCost: 0, notes: "DJ or band for ceremony and reception", userId: 0 },
+    { name: "Invitations", estimatedCost: 0, actualCost: 0, notes: "Invitations, save-the-dates, thank you cards", userId: 0 },
+    { name: "Cake", estimatedCost: 0, actualCost: 0, notes: "Wedding cake and desserts", userId: 0 },
+    { name: "Transportation", estimatedCost: 0, actualCost: 0, notes: "Limo, car rentals", userId: 0 },
+    { name: "Rings", estimatedCost: 0, actualCost: 0, notes: "Wedding bands", userId: 0 },
+    { name: "Decorations", estimatedCost: 0, actualCost: 0, notes: "Ceremony and reception decor", userId: 0 },
+    { name: "Gifts", estimatedCost: 0, actualCost: 0, notes: "Gifts for wedding party and family", userId: 0 }
   ];
   
   const form = useForm<BudgetFormValues>({
@@ -124,11 +124,12 @@ export default function BudgetPage() {
   });
   
   const onSubmit = (data: BudgetFormValues) => {
-    // Convert string inputs to numbers
+    // Convert string inputs to numbers and add userId (will be set properly by the server)
     const formattedData = {
       ...data,
       estimatedCost: Number(data.estimatedCost),
       actualCost: Number(data.actualCost),
+      userId: 0
     };
     
     createCategory.mutate(formattedData);
